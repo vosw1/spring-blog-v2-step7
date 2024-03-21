@@ -9,54 +9,51 @@ import shop.mtcoding.blog.user.User;
 
 import java.util.List;
 
-@RequiredArgsConstructor // final이 붙은 친구들의 생성자를 만들어줘
-@RestController // new BoardController(IoC에서 BoardRepository를 찾아서 주입) -> IoC 컨테이너 등록
+@RequiredArgsConstructor
+@RestController
 public class BoardController {
 
-    private final BoardService boardService;
     private final HttpSession session;
+    private final BoardService boardService;
 
-    // TODO: 글목록조회 API 필요 -> @GetMapping("/")
-    @GetMapping("/")
+    @GetMapping("/") // 완료
     public ResponseEntity<?> main(){
-        List<BoardResponse.MainDTO> respDTO = boardService.글목록조회();
+        List<BoardResponse.MainDTO> respDTO = boardService.findAll();
         return ResponseEntity.ok(new ApiUtil(respDTO));
     }
 
-    // TODO: 글상세보기 API 필요 -> @GetMapping("/api/boards/{id}/detail")
-    @GetMapping("/api/boards/{id}/detail")
-    public ResponseEntity<?> detail(@PathVariable Integer id){
+    @GetMapping("/api/boards/{id}/detail") // 완료
+    public ResponseEntity<?> detail(@PathVariable Integer id) {
         User sessionUser = (User) session.getAttribute("sessionUser");
-        BoardResponse.DetailDTO respDTO = boardService.글상세보기(id, sessionUser);
-        return ResponseEntity.ok(new ApiUtil(respDTO));
+        BoardResponse.DetailDTO respDTO = boardService.detail(id, sessionUser);
+        return ResponseEntity.ok(new ApiUtil<>(respDTO)); // board에 연관된 객체가 있기에 위험함 / 무한 참조가 일어날 수 있음
     }
 
-    // TODO: 글조회 API 필요 -> @GetMapping("/api/boards/{id}")
-    @GetMapping("/api/boards/{id}")
-    public ResponseEntity<?> findOne(@PathVariable Integer id){
-        BoardResponse.DTO respDTO = boardService.글조회(id);
-        return ResponseEntity.ok(new ApiUtil(respDTO));
+    @GetMapping("/api/boards/{id}") // 완료
+    public ResponseEntity<?> lookUp(@PathVariable Integer id) {
+        BoardResponse.LookDTO respDTO = boardService.lookUp(id);
+        return ResponseEntity.ok(new ApiUtil<>(respDTO));
     }
 
-    @PostMapping("/api/boards")
+    @PostMapping("/api/boards") // 완료
     public ResponseEntity<?> save(@RequestBody BoardRequest.SaveDTO reqDTO) {
         User sessionUser = (User) session.getAttribute("sessionUser");
-        BoardResponse.DTO respDTO = boardService.글쓰기(reqDTO, sessionUser);
-        return ResponseEntity.ok(new ApiUtil(respDTO));
+        BoardResponse.SaveDTO respDTO = boardService.save(reqDTO, sessionUser);
+        return ResponseEntity.ok(new ApiUtil<>(respDTO));
     }
 
-    @PutMapping("/api/boards/{id}")
+    // @Transactional 트랜잭션 시간이 너무 길어져서 service에 넣어야함
+    @PutMapping("/api/boards/{id}") // 완료
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody BoardRequest.UpdateDTO reqDTO) {
         User sessionUser = (User) session.getAttribute("sessionUser");
-        BoardResponse.DTO respDTO = boardService.글수정(id, sessionUser.getId(), reqDTO);
-        return ResponseEntity.ok(new ApiUtil(respDTO));
+        BoardResponse.UpdateDTO respDTOd = boardService.update(id, sessionUser.getId(), reqDTO);
+        return ResponseEntity.ok(new ApiUtil<>(respDTOd));
     }
 
     @DeleteMapping("/api/boards/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         User sessionUser = (User) session.getAttribute("sessionUser");
-        boardService.글삭제(id, sessionUser.getId());
-        return ResponseEntity.ok(new ApiUtil(null));
+        BoardResponse.DeleteDTO respDTO = boardService.delete(id, sessionUser.getId());
+        return ResponseEntity.ok(new ApiUtil<>(null));
     }
-
 }

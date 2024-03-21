@@ -1,12 +1,14 @@
 package shop.mtcoding.blog.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.mtcoding.blog._core.errors.exception.Exception400;
 import shop.mtcoding.blog._core.errors.exception.Exception401;
 import shop.mtcoding.blog._core.errors.exception.Exception404;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -25,20 +27,25 @@ public class UserService {
         return user;
     }
 
-    public UserResponse.DTO 회원조회(int id){
+    public List<User> findAll() {
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        return userJPARepository.findAll(sort);
+    }
+
+    public UserResponse.DTO lookUp(int id){
         User user = userJPARepository.findById(id)
                 .orElseThrow(() -> new Exception404("회원정보를 찾을 수 없습니다"));
         return new UserResponse.DTO(user); // 엔티티 생명 종료
     }
     
-    public User 로그인(UserRequest.LoginDTO reqDTO){
+    public User login(UserRequest.LoginDTO reqDTO){
         User sessionUser = userJPARepository.findByUsernameAndPassword(reqDTO.getUsername(), reqDTO.getPassword())
                 .orElseThrow(() -> new Exception401("인증되지 않았습니다"));
         return sessionUser;
     }
 
     @Transactional
-    public User 회원가입(UserRequest.JoinDTO reqDTO){ // ssar
+    public User join(UserRequest.JoinDTO reqDTO){ // ssar
         // 1. 유저네임 중복검사 (서비스 체크) - DB연결이 필요한 것은 Controller에서 작성할 수 없다.
         Optional<User> userOP = userJPARepository.findByUsername(reqDTO.getUsername());
 

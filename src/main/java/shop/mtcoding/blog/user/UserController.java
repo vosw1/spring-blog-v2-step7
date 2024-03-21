@@ -16,8 +16,8 @@ public class UserController {
 
     // TODO: 회원정보 조회 API 필요 -> @GetMapping("/api/users/{id}")
     @GetMapping("/users/{id}")
-    public ResponseEntity<?> userinfo(@PathVariable Integer id){
-        UserResponse.DTO respDTO = userService.회원조회(id);
+    public ResponseEntity<?> userinfo(@PathVariable Integer id) {
+        UserResponse.DTO respDTO = userService.lookUp(id);
         return ResponseEntity.ok(new ApiUtil(respDTO));
     }
 
@@ -32,15 +32,15 @@ public class UserController {
         return ResponseEntity.ok(new ApiUtil(respDTO));
     }
 
-    @PostMapping("/join")
+    @PostMapping("/join") // 인증이 필요하지 않아 users를 붙이지 않음
     public ResponseEntity<?> join(@RequestBody UserRequest.JoinDTO reqDTO) {
-        User user = userService.회원가입(reqDTO);
+        User user = userService.join(reqDTO);
         return ResponseEntity.ok(new ApiUtil(user));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserRequest.LoginDTO reqDTO) {
-        User sessionUser = userService.로그인(reqDTO);
+        User sessionUser = userService.login(reqDTO);
         session.setAttribute("sessionUser", sessionUser);
         return ResponseEntity.ok(new ApiUtil(null));
     }
