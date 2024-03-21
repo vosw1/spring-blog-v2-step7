@@ -1,16 +1,9 @@
 package shop.mtcoding.blog.user;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import shop.mtcoding.blog._core.errors.exception.Exception400;
-import shop.mtcoding.blog._core.errors.exception.Exception401;
 import shop.mtcoding.blog._core.utils.ApiUtil;
 
 
@@ -31,11 +24,11 @@ public class UserController {
     @PutMapping("/api/users/{id}")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody UserRequest.UpdateDTO reqDTO) {
         User sessionUser = (User) session.getAttribute("sessionUser");
-        User newSessionUser = userService.회원수정(sessionUser.getId(), reqDTO);
+        User newSessionUser = userService.update(sessionUser.getId(), reqDTO);
         session.setAttribute("sessionUser", newSessionUser);
 
         // 이 친구만 DTO 생성위치 예외
-        UserResponse.DTO respDTO = new UserResponse.DTO(sessionUser);
+        UserResponse.UpdateDTO respDTO = new UserResponse.UpdateDTO(sessionUser);
         return ResponseEntity.ok(new ApiUtil(respDTO));
     }
 

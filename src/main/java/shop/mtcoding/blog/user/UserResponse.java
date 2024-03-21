@@ -16,4 +16,17 @@ public class UserResponse {
             this.email = user.getEmail();
         }
     }
+
+    @Data
+    public static class UpdateDTO {
+        private int id;
+        private String password;
+        private String email;
+
+        public UpdateDTO(User user) {
+            this.id = user.getId();
+            this.password = user.getPassword();
+            this.email = user.getEmail();
+        }
+    }
 }
